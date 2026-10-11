@@ -1,0 +1,1575 @@
+
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Apa Weh</title>
+
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  width: 100%;
+  height: 100dvh;
+  overflow: hidden;
+  background: #100006 url("bunga.png") center / cover no-repeat fixed;
+  color: white;
+  font-family: Georgia, serif;
+}
+
+#loadingScreen {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 18px;
+  background: #100006;
+  color: #ffd9e3;
+  font-size: 14px;
+  letter-spacing: 2px;
+  transition: opacity .95s ease, visibility 3s linear .95s;
+}
+
+#loadingScreen.is-hidden {
+  visibility: hidden;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.loading-spinner {
+  width: 42px;
+  height: 42px;
+  border: 3px solid #a600354d;
+  border-top-color: #ff789b;
+  border-right-color: #a60035;
+  border-radius: 50%;
+  box-shadow: 0 0 20px #a6003580;
+  animation: loadingSpin .9s linear infinite;
+}
+
+@keyframes loadingSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.page {
+  position: fixed;
+  inset: 0;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  justify-content: safe center;
+  align-items: center;
+  gap: clamp(10px, 2.5vh, 19px);
+  padding:
+    max(12px, env(safe-area-inset-top))
+    max(14px, env(safe-area-inset-right))
+    max(20px, env(safe-area-inset-bottom))
+    max(14px, env(safe-area-inset-left));
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
+  text-align: center;
+  background: radial-gradient(ellipse at center, #570020, #100007 75%);
+}
+
+#page1 {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity .8s ease;
+}
+
+#page1.intro-visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.page h1 {
+  max-width: 600px;
+  font-size: clamp(24px, 6vw, 46px);
+  color: #ffd9e3;
+  text-shadow: 0 0 22px #d00040;
+  line-height: 1.3;
+}
+
+.page p {
+  max-width: 330px;
+  font-size: 14px;
+  line-height: 1.8;
+  color: #efbdcc;
+}
+
+button {
+  padding: 13px 25px;
+  border: 1px solid #ff8ba8;
+  border-radius: 30px;
+  background: #870027;
+  color: white;
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background .25s, transform .25s;
+}
+
+button:hover {
+  background: #b0003a;
+}
+
+button:active {
+  transform: scale(.96);
+}
+
+.buttons {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#page2NextButton:not([hidden]),
+#page3NextButton:not([hidden]),
+#page4NextButton:not([hidden]) {
+  animation: buttonFadeIn .8s ease both;
+}
+
+@keyframes buttonFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.back-button {
+  background: transparent;
+  border-color: #884158;
+}
+
+.page-number {
+  position: absolute;
+  bottom: 15px;
+  font: 10px Arial, sans-serif;
+  letter-spacing: 4px;
+  color: #bc7087;
+}
+
+#page2,
+#page3,
+#page4,
+#page5 {
+  display: none;
+}
+
+/* =================================
+   HALAMAN 2: SURAT
+================================= */
+
+#page2 {
+  gap: 15px;
+}
+
+#letterHint {
+  min-height: 20px;
+  color: #e6a8bb;
+  font-size: 12px;
+}
+
+/* AREA AMPLOP */
+.envelope-scene {
+  position: relative;
+  width: min(82vw, 330px);
+  height: 205px;
+  flex-shrink: 0;
+  cursor: pointer;
+  perspective: 1000px;
+  -webkit-tap-highlight-color: transparent;
+  outline: none;
+}
+
+/* KERTAS SURAT */
+.letter-paper {
+  position: absolute;
+  left: 7%;
+  bottom: 7px;
+  z-index: 1;
+  width: 86%;
+  height: 145px;
+  padding: 14px;
+  overflow: hidden;
+  border-radius: 3px;
+  text-align: left;
+  color: #67142f;
+
+  background: linear-gradient(
+    145deg,
+    #fffaf0,
+    #f8e5e8
+  );
+
+  box-shadow: 0 2px 10px #0003;
+
+  transform: translateY(0);
+  transition:
+    transform 1s cubic-bezier(.16, 1, .3, 1),
+    width .8s ease,
+    left .8s ease,
+    height .8s ease,
+    box-shadow .8s ease;
+}
+
+.letter-greeting {
+  color: #912649;
+  font-size: 12px;
+  font-style: italic;
+  margin-bottom: 8px;
+}
+
+#typedText {
+  max-width: none;
+  color: #65162e;
+  font-family: Georgia, serif;
+  font-size: 11.5px;
+  line-height: 1.5;
+  letter-spacing: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+}
+
+/* KURSOR MENGETIK */
+.typing-cursor {
+  display: inline-block;
+  width: 6px;
+  height: 12px;
+  margin-left: 2px;
+  background: #b51a48;
+  vertical-align: -2px;
+  animation: cursorBlink .7s steps(2, start) infinite;
+}
+
+@keyframes cursorBlink {
+  to {
+    visibility: hidden;
+  }
+}
+
+/* BAGIAN BELAKANG AMPLOP */
+.envelope-back {
+  position: absolute;
+  inset: 42px 0 0;
+  z-index: 2;
+  border-radius: 5px 5px 8px 8px;
+  background: linear-gradient(135deg, #bd3a5d, #6f001f);
+}
+
+/* LIPATAN DEPAN AMPLOP */
+.envelope-front {
+  position: absolute;
+  inset: 42px 0 0;
+  z-index: 3;
+  border-radius: 0 0 7px 7px;
+
+  background: linear-gradient(
+    140deg,
+    #a51e45,
+    #780022 65%,
+    #4c0018
+  );
+
+  clip-path: polygon(
+    0 0,
+    50% 56%,
+    100% 0,
+    100% 100%,
+    0 100%
+  );
+}
+
+/* PENUTUP AMPLOP */
+.envelope-flap {
+  position: absolute;
+  left: 0;
+  top: 42px;
+  width: 100%;
+  height: 112px;
+  z-index: 8;
+
+  background: linear-gradient(
+    140deg,
+    #e14c70,
+    #a30d38 75%
+  );
+
+  clip-path: polygon(0 0, 100% 0, 50% 100%);
+  transform-origin: center;
+}
+
+/* SEGEL AMPLOP */
+.envelope-seal {
+  position: absolute;
+  z-index: 6;
+  left: 50%;
+  top: 119px;
+  width: 31px;
+  height: 31px;
+  border: 1px solid #ffc1d0;
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+
+  background: radial-gradient(
+    circle at 35% 30%,
+    #fa91ac,
+    #a60035 65%,
+    #62001d
+  );
+
+  box-shadow: 0 2px 9px #3b0018aa;
+}
+
+/* KERTAS MEMANJANG DAN NAIK */
+.envelope-scene.opened .letter-paper {
+  z-index: 7;
+  left: 4%;
+  bottom: 0;
+  width: 92%;
+  height: 195px;
+  transform: translateY(-22px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  box-shadow: 0 12px 28px #0006;
+  transition-delay: .45s;
+}
+
+/* AMPLOP TURUN KE BAWAH KERTAS */
+.envelope-scene.opened .envelope-back,
+.envelope-scene.opened .envelope-front {
+  transform-origin: center center;
+  animation: envelopeSlideDown .8s
+    cubic-bezier(.16, 1, .3, 1) .45s forwards;
+}
+
+.envelope-scene.opened .envelope-seal {
+  transform-origin: center;
+  animation: sealSlideDown .8s
+    cubic-bezier(.16, 1, .3, 1) .45s forwards;
+}
+
+.envelope-scene.opened .envelope-flap {
+  z-index: 6;
+  transform-origin: center top;
+  animation:
+    flapOpen .45s ease-out forwards,
+    flapSlideDown .8s
+      cubic-bezier(.16, 1, .3, 1) .45s forwards;
+}
+
+@keyframes envelopeSlideDown {
+  0% {
+    transform: translateY(0);
+  }
+
+  100% {
+    transform: translateY(145px);
+  }
+}
+
+@keyframes sealSlideDown {
+  0% {
+    transform: translate(-50%, -50%);
+  }
+
+  100% {
+    transform: translate(-50%, calc(-50% + 145px));
+  }
+}
+
+@keyframes flapOpen {
+  0% {
+    transform: rotateX(0deg);
+  }
+
+  100% {
+    transform: rotateX(180deg);
+  }
+}
+
+@keyframes flapSlideDown {
+  0% {
+    transform: translateY(0) rotateX(180deg);
+  }
+
+  100% {
+    transform: translateY(145px) rotateX(180deg);
+  }
+}
+
+/* =================================
+   HALAMAN 3: POLAROID
+================================= */
+
+#page3 {
+  gap: 15px;
+}
+
+#page3 .subtitle {
+  font-size: 12px;
+}
+
+.photo-grid {
+  width: min(92vw, 680px);
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(9px, 2vw, 18px);
+  align-items: center;
+}
+
+@media (max-width: 680px) {
+  .photo-grid {
+    width: min(88vw, 440px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.letter-form {
+  width: min(88vw, 520px);
+  display: grid;
+  gap: 11px;
+  padding: clamp(16px, 3vw, 24px);
+  border-radius: 4px;
+  background: linear-gradient(145deg, #fffaf0, #f8e5e8);
+  box-shadow: 0 10px 30px #0008;
+  color: #67142f;
+  text-align: left;
+}
+
+.letter-form h2 {
+  color: #912649;
+  font-size: clamp(19px, 4vw, 25px);
+  text-align: center;
+}
+
+.letter-form p {
+  max-width: none;
+  color: #79334a;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.letter-form label {
+  color: #67142f;
+  font-size: 12px;
+  font-weight: bold;
+}
+
+.letter-form input,
+.letter-form textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d8a9b6;
+  border-radius: 4px;
+  background: #fffdf9;
+  color: #421022;
+  font: 14px Georgia, serif;
+}
+
+.letter-form textarea {
+  min-height: 120px;
+  max-height: 280px;
+  resize: vertical;
+  line-height: 1.6;
+}
+
+.letter-form button {
+  justify-self: center;
+}
+
+.letter-form button:disabled {
+  cursor: wait;
+  opacity: .7;
+}
+
+.letter-form #replyStatus {
+  min-height: 1.6em;
+  text-align: center;
+}
+
+#page4 {
+  gap: 15px;
+}
+
+#page5 {
+  gap: 0;
+}
+
+#page5 .final-display {
+  position: relative;
+  width: min(94vw, 760px);
+  height: min(72vh, 680px);
+  display: grid;
+  place-items: center;
+}
+
+#page5 .polaroid.love-polaroid {
+  width: min(78vw, 460px);
+  height: min(68vh, 580px);
+  padding: 12px 12px 54px;
+  flex: 0 1 auto;
+}
+
+#page5 .polaroid.love-polaroid img {
+  width: 100%;
+  height: 100%;
+  aspect-ratio: auto;
+  object-fit: contain;
+}
+
+#page5 .polaroid.love-polaroid .caption {
+  bottom: 14px;
+  font-size: clamp(15px, 3vw, 22px);
+}
+
+#page5 .flower-decoration {
+  position: absolute;
+  z-index: 2;
+  top: 50%;
+  right: 3%;
+  width: min(28vw, 210px);
+  height: min(45vh, 360px);
+  object-fit: contain;
+  transform: translateY(-50%) rotate(7deg);
+  filter: drop-shadow(0 8px 14px #0008);
+  pointer-events: none;
+}
+
+.polaroid {
+  position: relative;
+  width: 100%;
+  padding: 7px 7px 26px;
+  background: #f8eff0;
+  border-radius: 2px;
+  box-shadow: 0 10px 30px #0008;
+  overflow: hidden;
+
+  opacity: 0;
+  transform: translate3d(110vw, 10px, 0) rotate(8deg);
+}
+
+.polaroid img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 3 / 3.7;
+  object-fit: cover;
+  background: #d5b9c2;
+}
+
+.polaroid .caption {
+  position: absolute;
+  bottom: 6px;
+  left: 3px;
+  right: 3px;
+  color: #642037;
+  font-family: "Brush Script MT", cursive;
+  font-size: clamp(10px, 1.5vw, 14px);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.polaroid:nth-child(1) {
+  --tilt: -7deg;
+  --delay: 0s;
+}
+
+.polaroid:nth-child(2) {
+  --tilt: 5deg;
+  --delay: .35s;
+}
+
+.polaroid:nth-child(3) {
+  --tilt: -4deg;
+  --delay: .70s;
+}
+
+.polaroid:nth-child(4) {
+  --tilt: 8deg;
+  --delay: 1.05s;
+}
+
+#page3.play-photos .polaroid,
+#page5.play-photos .polaroid {
+  will-change: transform, opacity;
+  animation: polaroidEnter 1.25s
+    cubic-bezier(.16, 1, .3, 1)
+    var(--delay) both;
+}
+
+#page3 .polaroid:nth-child(2) {
+  --delay: .12s;
+}
+
+#page3 .polaroid:nth-child(3) {
+  --delay: .24s;
+}
+
+#page3 .polaroid:nth-child(4) {
+  --delay: .36s;
+}
+
+@keyframes polaroidEnter {
+  0% {
+    opacity: 0;
+    transform:
+      translate3d(110vw, 12px, 0)
+      rotate(calc(var(--tilt) + 12deg))
+      scale(.94);
+  }
+
+  35% {
+    opacity: .65;
+  }
+
+  65% {
+    opacity: 1;
+  }
+
+  82% {
+    transform:
+      translate3d(-5px, 0, 0)
+      rotate(calc(var(--tilt) - 1deg))
+      scale(1);
+  }
+
+  100% {
+    opacity: 1;
+    transform:
+      translate3d(0, 0, 0)
+      rotate(var(--tilt))
+      scale(1);
+  }
+}
+
+/* =================================
+   TRANSISI BUNGA CANVAS
+================================= */
+
+#roseCanvas {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+@media (max-width: 520px) {
+  .page {
+    gap: clamp(9px, 2vh, 16px);
+    padding:
+      max(12px, env(safe-area-inset-top))
+      max(12px, env(safe-area-inset-right))
+      max(18px, env(safe-area-inset-bottom))
+      max(12px, env(safe-area-inset-left));
+  }
+
+  #page2 {
+    gap: 12px;
+  }
+
+  #page5 .polaroid.love-polaroid {
+    width: min(82vw, 420px);
+    height: min(68vh, 560px);
+    padding: 8px 8px 42px;
+  }
+
+  #page5 .polaroid.love-polaroid .caption {
+    bottom: 10px;
+    font-size: clamp(11px, 3vw, 15px);
+  }
+
+  #page5 .flower-decoration {
+    right: 8%;
+    top: auto;
+    bottom: 2%;
+    width: min(38vw, 165px);
+    height: min(36vh, 270px);
+    transform: rotate(7deg);
+  }
+
+  .envelope-scene {
+    width: min(84vw, 310px);
+    height: 195px;
+  }
+
+  .letter-paper {
+    height: 138px;
+  }
+
+  .envelope-back,
+  .envelope-front {
+    top: 40px;
+  }
+
+  .envelope-flap {
+    top: 40px;
+  }
+
+  .envelope-seal {
+    top: 116px;
+  }
+
+  .envelope-scene.opened .letter-paper {
+    height: 190px;
+    transform: translateY(-18px);
+  }
+
+  #typedText {
+    font-size: 11px;
+    line-height: 1.45;
+  }
+
+  .photo-grid {
+    width: min(84vw, 360px);
+    gap: 14px 18px;
+  }
+
+  .polaroid {
+    padding: 5px 5px 22px;
+  }
+
+  .polaroid img {
+    aspect-ratio: 1 / 1.05;
+  }
+
+  .polaroid .caption {
+    bottom: 4px;
+    font-size: 11px;
+  }
+
+  .page-number {
+    bottom: 9px;
+  }
+}
+
+@media (max-height: 600px) {
+  .page {
+    justify-content: flex-start;
+    gap: 8px;
+    padding:
+      max(10px, env(safe-area-inset-top))
+      max(10px, env(safe-area-inset-right))
+      max(10px, env(safe-area-inset-bottom))
+      max(10px, env(safe-area-inset-left));
+  }
+
+  .page h1 {
+    font-size: clamp(22px, 5vh, 34px);
+  }
+
+  #page2 {
+    gap: 5px;
+  }
+
+  .envelope-scene {
+    height: 165px;
+    width: min(65vw, 290px);
+  }
+
+  .letter-paper {
+    height: 120px;
+    padding: 10px;
+  }
+
+  .envelope-back,
+  .envelope-front {
+    top: 35px;
+  }
+
+  .envelope-flap {
+    top: 35px;
+    height: 90px;
+  }
+
+  .envelope-seal {
+    top: 101px;
+    width: 25px;
+    height: 25px;
+  }
+
+  .envelope-scene.opened .letter-paper {
+    height: 165px;
+    transform: translateY(-20px);
+    padding: 10px;
+  }
+
+  #typedText {
+    font-size: 10px;
+    line-height: 1.35;
+  }
+
+  #page3 {
+    gap: 7px;
+  }
+
+  #page5 .polaroid.love-polaroid {
+    height: min(48vh, 300px);
+  }
+
+  #page3 .photo-grid {
+    width: min(72vw, 560px);
+  }
+
+  #page3 .polaroid img {
+    aspect-ratio: 3 / 2;
+  }
+
+  .page-number {
+    display: none;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div id="loadingScreen" role="status" aria-live="polite">
+  <div class="loading-spinner" aria-hidden="true"></div>
+  <span>Memuat kenangan...</span>
+</div>
+
+<!-- HALAMAN 1 -->
+<section class="page" id="page1" inert>
+  <h1>For Rayyina Syifa Alsakina</h1>
+
+  <p>
+    Ada sesuatu yang sudah aku siapkan untuk kamu.
+    Buka halaman ini untuk melihatnya.
+  </p>
+
+  <button onclick="changePage(2)">BUKA</button>
+
+</section>
+
+<!-- HALAMAN 2 -->
+<section class="page" id="page2">
+  <h1>Surat Kecil Untukmu</h1>
+
+  <p id="letterHint">Tekan amplopnya untuk membuka surat.</p>
+
+  <div
+    class="envelope-scene"
+    id="envelopeScene"
+    role="button"
+    tabindex="0"
+    aria-label="Buka surat ulang tahun"
+    onclick="openLetter()"
+    onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();openLetter();}"
+  >
+    <div class="letter-paper" id="letterPaper">
+      <div class="letter-greeting">Untuk kamu,</div>
+      <p id="typedText"></p>
+      <span class="typing-cursor" id="typingCursor"></span>
+    </div>
+
+    <div class="envelope-back"></div>
+    <div class="envelope-front"></div>
+    <div class="envelope-flap"></div>
+    <div class="envelope-seal"></div>
+  </div>
+
+  <div class="buttons">
+    <button id="page2NextButton" onclick="changePage(3)" hidden>SELANJUTNYA</button>
+  </div>
+
+</section>
+
+<!-- HALAMAN 3 -->
+<section class="page" id="page3">
+  <h1>Our Little Memories</h1>
+
+  <p class="subtitle">Beberapa kenangan yang ingin aku simpan.</p>
+
+  <div class="photo-grid">
+    <div class="polaroid">
+      <img src="1_1(1).jpeg" alt="Kenangan pertama">
+      <div class="caption">one little memory</div>
+    </div>
+
+    <div class="polaroid">
+      <img src="2_2(2).jpeg" alt="Kenangan kedua">
+      <div class="caption">a special moment</div>
+    </div>
+
+    <div class="polaroid">
+      <img src="1_1(2).jpeg" alt="Kenangan ketiga">
+      <div class="caption">little happiness</div>
+    </div>
+
+    <div class="polaroid">
+      <img src="2_2(3).jpeg" alt="Kenangan keempat">
+      <div class="caption">always remember</div>
+    </div>
+  </div>
+
+  <p class="subtitle">Momen sederhana, kenangan luar biasa.</p>
+
+  <div class="buttons">
+    <button id="page3NextButton" onclick="changePage(4)" hidden>KIRIM SURAT BALASAN</button>
+  </div>
+
+</section>
+
+<!-- HALAMAN 4 -->
+<section class="page" id="page4">
+  <form class="letter-form" id="replyForm">
+    <h2>Kirim Surat Balasan</h2>
+    <p>Tulis pesanmu di sini. Email pengunjung tidak diminta; nama panggilan hanya opsional.</p>
+
+    <label for="replyName">Nama atau panggilan (opsional)</label>
+    <input
+      id="replyName"
+      name="name"
+      type="text"
+      maxlength="60"
+      autocomplete="nickname"
+      placeholder="Nama panggilanmu"
+    >
+
+    <label for="replyMessage">Pesan untukku</label>
+    <textarea
+      id="replyMessage"
+      name="message"
+      maxlength="3000"
+      placeholder="Tulis suratmu di sini..."
+      required
+    ></textarea>
+
+    <input type="hidden" name="_subject" value="Surat balasan dari Our Little Memories">
+    <input type="hidden" name="_template" value="box">
+    <input type="hidden" name="_captcha" value="false">
+    <div aria-hidden="true" style="position:absolute;left:-10000px">
+      <label for="replyWebsite">Jangan isi kolom ini</label>
+      <input id="replyWebsite" type="text" name="_honey" tabindex="-1" autocomplete="off">
+    </div>
+
+    <button id="sendReplyButton" type="submit">KIRIM SURAT</button>
+    <p id="replyStatus" role="status" aria-live="polite"></p>
+  </form>
+
+  <div class="buttons">
+    <button id="page4NextButton" onclick="changePage(5)" hidden>LANJUTKAN</button>
+  </div>
+
+</section>
+
+<!-- HALAMAN 5 -->
+<section class="page" id="page5">
+  <div class="final-display">
+    <div class="polaroid love-polaroid">
+      <img src="LOVE_YOU.jpeg" alt="Foto kenangan bersama">
+      <div class="caption">I LOVE YOU, IM LUCKY HAVE YOU</div>
+    </div>
+
+    <img class="flower-decoration" src="bunga.png" alt="" aria-hidden="true">
+  </div>
+
+</section>
+
+<canvas id="roseCanvas"></canvas>
+
+<audio
+  id="backgroundMusic"
+  src="background-music.mp3"
+  autoplay
+  loop
+  preload="auto"
+></audio>
+
+<script>
+const backgroundMusic = document.getElementById("backgroundMusic");
+
+const replyForm = document.getElementById("replyForm");
+const replyStatus = document.getElementById("replyStatus");
+const sendReplyButton = document.getElementById("sendReplyButton");
+const page4NextButton = document.getElementById("page4NextButton");
+
+replyForm.addEventListener("submit", async event => {
+  event.preventDefault();
+  sendReplyButton.disabled = true;
+  replyStatus.textContent = "Suratmu sedang dikirim...";
+
+  try {
+    const response = await fetch("https://formsubmit.co/ajax/netyakmal@gmail.com", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Accept": "application/json"
+      },
+      body: JSON.stringify(Object.fromEntries(new FormData(replyForm)))
+    });
+    const result = await response.json();
+
+    if (!response.ok || (result.success !== true && result.success !== "true")) {
+      throw new Error(result.message || "Layanan email menolak surat ini.");
+    }
+
+    replyForm.reset();
+    replyStatus.textContent =
+      "Suratmu berhasil dikirim. Jika ini pertama kali, cek email penerima untuk verifikasi.";
+    page4NextButton.hidden = false;
+  } catch (error) {
+    console.error("Gagal mengirim surat:", error);
+    replyStatus.textContent =
+      "Surat belum berhasil dikirim. Coba lagi beberapa saat lagi.";
+  } finally {
+    sendReplyButton.disabled = false;
+  }
+});
+
+function startBackgroundMusic() {
+  backgroundMusic.play().then(() => {
+    document.removeEventListener("pointerdown", startBackgroundMusic);
+    document.removeEventListener("keydown", startBackgroundMusic);
+  }).catch(error => {
+    if (error.name !== "NotAllowedError") {
+      console.error("Musik latar gagal diputar:", error);
+    }
+  });
+}
+
+backgroundMusic.addEventListener("error", () => {
+  console.error("File musik latar tidak dapat dimuat.");
+});
+
+document.addEventListener("pointerdown", startBackgroundMusic);
+document.addEventListener("keydown", startBackgroundMusic);
+startBackgroundMusic();
+
+/* =================================
+   SURAT DAN EFEK MENGETIK
+================================= */
+
+const envelopeScene = document.getElementById("envelopeScene");
+const letterHint = document.getElementById("letterHint");
+const typedText = document.getElementById("typedText");
+const typingCursor = document.getElementById("typingCursor");
+const page2NextButton = document.getElementById("page2NextButton");
+const page3NextButton = document.getElementById("page3NextButton");
+
+const birthdayMessage =
+  "Selamat ulang tahun! Semoga di usia yang baru ini kamu selalu diberi kesehatan, ketenangan, dan kebahagiaan. Semoga segala impian yang kamu simpan perlahan menjadi nyata. Terima kasih sudah hadir dan membawa warna indah dalam hari-hariku. Ingatlah bahwa kamu berharga, kamu pantas mendapatkan banyak hal baik, dan kamu layak tersenyum setiap hari. Semoga tahun ini menjadi awal dari banyak cerita indah yang akan kamu kenang.";
+
+let letterOpened = false;
+let typingTimer = null;
+
+function resetLetter() {
+  clearInterval(typingTimer);
+  typingTimer = null;
+  letterOpened = false;
+  page2NextButton.hidden = true;
+
+  envelopeScene.classList.remove("opened");
+  typedText.textContent = "";
+  typingCursor.style.display = "none";
+  letterHint.textContent = "Tekan amplopnya.";
+}
+
+function openLetter() {
+  if (letterOpened) return;
+
+  letterOpened = true;
+  envelopeScene.classList.add("opened");
+
+  letterHint.textContent = "Membuka surat untukmu...";
+  typedText.textContent = "";
+  typingCursor.style.display = "inline-block";
+
+  let index = 0;
+
+  // Tunggu amplop mulai mengecil dan kertas terangkat
+  setTimeout(() => {
+    if (!letterOpened) return;
+
+    typingTimer = setInterval(() => {
+      typedText.textContent =
+        birthdayMessage.slice(0, index + 1);
+
+      index++;
+
+      if (index >= birthdayMessage.length) {
+        clearInterval(typingTimer);
+        typingTimer = null;
+
+        letterHint.textContent = "Dari hati, untuk kamu.";
+        typingCursor.style.display = "none";
+        page2NextButton.hidden = false;
+      }
+    }, 32);
+  }, 650);
+}
+
+/* =================================
+   POLAROID HALAMAN 3
+================================= */
+
+function startPolaroids(pageNumber) {
+  const page = document.getElementById("page" + pageNumber);
+
+  page.classList.remove("play-photos");
+  if (pageNumber === 3) {
+    const photos = new Set(page.querySelectorAll(".photo-grid .polaroid"));
+    const finishedPhotos = new Set();
+    page3NextButton.hidden = true;
+
+    const revealNextButton = event => {
+      if (event.animationName !== "polaroidEnter" || !photos.has(event.target)) {
+        return;
+      }
+
+      finishedPhotos.add(event.target);
+      if (finishedPhotos.size === photos.size) {
+        page.removeEventListener("animationend", revealNextButton);
+        page3NextButton.hidden = false;
+      }
+    };
+
+    page.addEventListener("animationend", revealNextButton);
+  }
+
+  void page.offsetWidth;
+  page.classList.add("play-photos");
+}
+
+/* =================================
+   TRANSISI MAWAR CANVAS
+================================= */
+
+const canvas = document.getElementById("roseCanvas");
+const ctx = canvas.getContext("2d", { alpha: true });
+const loadingScreen = document.getElementById("loadingScreen");
+
+let W = 0;
+let H = 0;
+let flowers = [];
+let busy = false;
+let animationId = null;
+let phase = "idle";
+let phaseStart = 0;
+let targetPage = 1;
+let lastFrame = 0;
+let introFillDuration = 0;
+let introRevealDuration = 0;
+
+const CLOSE_TIME = 1700;
+const HOLD_TIME = 1400;
+const OPEN_TIME = 1500;
+const FRAME_INTERVAL = 1000 / 30;
+const INTRO_LOADING_TIME = 700;
+const INTRO_FLOWER_TIME = 550;
+const INTRO_FLOWER_STAGGER = 110;
+const INTRO_REVEAL_TIME = 500;
+const INTRO_REVEAL_STAGGER = 80;
+
+function resize() {
+  W = window.innerWidth;
+  H = window.innerHeight;
+  canvas.width = W;
+  canvas.height = H;
+}
+
+window.addEventListener("resize", resize);
+resize();
+
+function random(min, max) {
+  return Math.random() * (max - min) + min;
+}
+
+function clamp(value, min = 0, max = 1) {
+  return Math.max(min, Math.min(max, value));
+}
+
+function ease(t) {
+  return t * t * (3 - 2 * t);
+}
+
+function drawRoseShape(g, x, y, size) {
+  g.save();
+  g.translate(x, y);
+
+  const colors = [
+    "#35000e", "#69001e", "#a30032",
+    "#d7194c", "#fa6686"
+  ];
+
+  for (let layer = 0; layer < 3; layer++) {
+    const petals = 7;
+    const radius = size * (0.06 + layer * 0.11);
+    const petalW = size * (0.48 - layer * 0.035);
+    const petalH = size * (0.67 - layer * 0.045);
+
+    for (let i = 0; i < petals; i++) {
+      const angle = Math.PI * 2 * i / petals + layer * .38;
+
+      g.save();
+      g.rotate(angle);
+      g.translate(0, -radius);
+
+      const gradient = g.createLinearGradient(
+        -petalW / 2, -petalH / 2,
+        petalW / 2, petalH / 2
+      );
+
+      gradient.addColorStop(0, colors[4 - layer]);
+      gradient.addColorStop(.5, colors[2 + (layer % 2)]);
+      gradient.addColorStop(1, colors[0]);
+
+      g.fillStyle = gradient;
+      g.strokeStyle = "#ff6c8b";
+      g.lineWidth = .8;
+
+      g.beginPath();
+      g.ellipse(
+        0, -petalH * .20,
+        petalW / 2, petalH / 2,
+        0, 0, Math.PI * 2
+      );
+
+      g.fill();
+      g.stroke();
+      g.restore();
+    }
+  }
+
+  const center = g.createRadialGradient(
+    0, 0, 1, 0, 0, size * .23
+  );
+
+  center.addColorStop(0, "#ffb1c2");
+  center.addColorStop(.35, "#ed3764");
+  center.addColorStop(.75, "#8c002a");
+  center.addColorStop(1, "#35000e");
+
+  g.fillStyle = center;
+  g.beginPath();
+  g.arc(0, 0, size * .23, 0, Math.PI * 2);
+  g.fill();
+
+  g.restore();
+}
+
+function createRoseSprite() {
+  const sprite = document.createElement("canvas");
+  sprite.width = 160;
+  sprite.height = 160;
+
+  drawRoseShape(sprite.getContext("2d"), 80, 80, 100);
+  return sprite;
+}
+
+const roseSprite = createRoseSprite();
+
+function drawRose(x, y, size, rotation, alpha) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.rotate(rotation);
+  ctx.globalAlpha = alpha;
+
+  const d = size * 1.6;
+  ctx.drawImage(roseSprite, -d / 2, -d / 2, d, d);
+
+  ctx.restore();
+}
+
+function createFlowers() {
+  flowers = [];
+
+  const spacing = 38;
+  const cols = Math.ceil(W / spacing) + 5;
+  const rows = Math.ceil(H / spacing) + 5;
+
+  for (let row = -2; row < rows; row++) {
+    for (let col = -2; col < cols; col++) {
+      const tx = col * spacing + random(-9, 9);
+      const ty = row * spacing + random(-9, 9);
+
+      const side = Math.floor(Math.random() * 4);
+      let sx, sy;
+
+      if (side === 0) {
+        sx = random(-W, W * 2);
+        sy = -H - random(0, H);
+      } else if (side === 1) {
+        sx = W + random(0, W);
+        sy = random(-H, H * 2);
+      } else if (side === 2) {
+        sx = random(-W, W * 2);
+        sy = H + random(0, H);
+      } else {
+        sx = -W - random(0, W);
+        sy = random(-H, H * 2);
+      }
+
+      flowers.push({
+        sx, sy, tx, ty,
+        x: sx,
+        y: sy,
+        size: random(76, 106),
+        rotation: random(0, Math.PI * 2),
+        spin: random(-1.5, 1.5),
+        delay: random(0, 280),
+        alpha: random(.94, 1)
+      });
+    }
+  }
+
+  for (let i = flowers.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [flowers[i], flowers[j]] = [flowers[j], flowers[i]];
+  }
+}
+
+function createIntroFlowers() {
+  flowers = [];
+  introFillDuration = 0;
+  introRevealDuration = 0;
+
+  const spacing = 40;
+  const cols = Math.ceil(W / spacing) + 2;
+  const rows = Math.ceil(H / spacing) + 2;
+
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      const tx = (col - 1) * spacing + random(-8, 8);
+      const ty = (row - 1) * spacing + random(-8, 8);
+
+      const delay = row * INTRO_FLOWER_STAGGER + random(0, 50);
+      const revealDelay = row * INTRO_REVEAL_STAGGER;
+      introFillDuration = Math.max(introFillDuration, delay + INTRO_FLOWER_TIME);
+      introRevealDuration = Math.max(
+        introRevealDuration,
+        revealDelay + INTRO_REVEAL_TIME
+      );
+      flowers.push({
+        sx: tx + random(-W * .35, W * .35),
+        sy: -random(60, H * .45),
+        tx, ty,
+        size: random(78, 100),
+        rotation: random(0, Math.PI * 2),
+        spin: random(-1.5, 1.5),
+        delay,
+        revealDelay,
+        alpha: random(.94, 1)
+      });
+    }
+  }
+}
+
+function showPage(number) {
+  for (let i = 1; i <= 5; i++) {
+    document.getElementById("page" + i).style.display =
+      i === number ? "flex" : "none";
+  }
+
+  if (number === 2) {
+    resetLetter();
+  }
+
+  document.getElementById("page3").classList.remove("play-photos");
+  document.getElementById("page5").classList.remove("play-photos");
+}
+
+function render(now) {
+  animationId = requestAnimationFrame(render);
+
+  if (now - lastFrame < FRAME_INTERVAL) return;
+  lastFrame = now;
+
+  ctx.clearRect(0, 0, W, H);
+
+  if (phase === "intro-loading") {
+    const elapsed = now - phaseStart;
+
+    if (elapsed >= INTRO_LOADING_TIME) {
+      createIntroFlowers();
+      loadingScreen.classList.add("is-hidden");
+      canvas.style.visibility = "visible";
+      phase = "intro-fall";
+      phaseStart = now;
+    }
+  }
+
+  else if (phase === "intro-fall") {
+    const elapsed = now - phaseStart;
+
+    for (const f of flowers) {
+      const t = clamp((elapsed - f.delay) / INTRO_FLOWER_TIME);
+      if (t <= 0) continue;
+
+      const e = ease(t);
+      f.x = f.sx + (f.tx - f.sx) * e;
+      f.y = f.sy + (f.ty - f.sy) * e;
+      drawRose(f.x, f.y, f.size, f.rotation + e * f.spin, f.alpha);
+    }
+
+    if (elapsed >= introFillDuration) {
+      phase = "intro-reveal";
+      phaseStart = now;
+    }
+  }
+
+  else if (phase === "intro-reveal") {
+    const elapsed = now - phaseStart;
+
+    for (const f of flowers) {
+      const t = clamp((elapsed - f.revealDelay) / INTRO_REVEAL_TIME);
+      const e = ease(t);
+      drawRose(
+        f.tx,
+        f.ty + e * 26,
+        f.size,
+        f.rotation + e * f.spin,
+        f.alpha * (1 - e)
+      );
+    }
+
+    if (elapsed >= introRevealDuration) {
+      phase = "idle";
+      canvas.style.visibility = "hidden";
+      const firstPage = document.getElementById("page1");
+      firstPage.classList.add("intro-visible");
+      firstPage.removeAttribute("inert");
+      busy = false;
+      cancelAnimationFrame(animationId);
+      animationId = null;
+    }
+  }
+
+  else if (phase === "close") {
+    const elapsed = now - phaseStart;
+    const cover = ease(clamp((elapsed - 350) / 1300));
+
+    if (cover > 0) {
+      ctx.fillStyle = `rgba(73,0,24,${cover})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    for (const f of flowers) {
+      const t = clamp((elapsed - f.delay) / CLOSE_TIME);
+      const e = ease(t);
+
+      f.x = f.sx + (f.tx - f.sx) * e;
+      f.y = f.sy + (f.ty - f.sy) * e;
+
+      drawRose(f.x, f.y, f.size, f.rotation, f.alpha);
+    }
+
+    if (elapsed >= CLOSE_TIME + 300) {
+      showPage(targetPage);
+      phase = "hold";
+      phaseStart = now;
+    }
+  }
+
+  else if (phase === "hold") {
+    ctx.fillStyle = "#490018";
+    ctx.fillRect(0, 0, W, H);
+
+    for (const f of flowers) {
+      drawRose(f.tx, f.ty, f.size, f.rotation, f.alpha);
+    }
+
+    if (now - phaseStart >= HOLD_TIME) {
+      phase = "open";
+      phaseStart = now;
+    }
+  }
+
+  else if (phase === "open") {
+    const t = clamp((now - phaseStart) / OPEN_TIME);
+    const e = ease(t);
+
+    if (e < 1) {
+      ctx.fillStyle = `rgba(73,0,24,${1 - e})`;
+      ctx.fillRect(0, 0, W, H);
+    }
+
+    for (const f of flowers) {
+      const x = f.tx + (f.sx - f.tx) * e;
+      const y = f.ty + (f.sy - f.ty) * e;
+
+      drawRose(
+        x, y, f.size,
+        f.rotation + e * f.spin,
+        f.alpha * (1 - e)
+      );
+    }
+
+    if (t >= 1) {
+      phase = "idle";
+      canvas.style.visibility = "hidden";
+
+      cancelAnimationFrame(animationId);
+      animationId = null;
+      busy = false;
+
+      if (targetPage === 3 || targetPage === 5) {
+        startPolaroids(targetPage);
+      }
+    }
+  }
+}
+
+function changePage(number) {
+  if (busy || number < 1 || number > 5) return;
+
+  busy = true;
+  targetPage = number;
+
+  // Hentikan proses mengetik saat berpindah halaman
+  letterOpened = false;
+  clearInterval(typingTimer);
+  typingTimer = null;
+
+  // Biarkan polaroid tetap terlihat sampai bunga menutup layar.
+
+  createFlowers();
+
+  canvas.style.visibility = "visible";
+  phase = "close";
+  phaseStart = performance.now();
+  lastFrame = 0;
+
+  if (animationId !== null) {
+    cancelAnimationFrame(animationId);
+  }
+
+  animationId = requestAnimationFrame(render);
+}
+
+function startIntro() {
+  busy = true;
+  phase = "intro-loading";
+  phaseStart = performance.now();
+  lastFrame = 0;
+  animationId = requestAnimationFrame(render);
+}
+
+startIntro();
+</script>
+
+</body>
+</html>
